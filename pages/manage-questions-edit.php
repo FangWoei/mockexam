@@ -1,0 +1,56 @@
+<?php
+
+    // redirect to home page if user is not admin
+    if ( !isCurrentUserAdmin() ) {
+        header( 'Location: /' );
+        exit;
+    }
+
+    // instruction: if $_GET['id'] is not set, redirect to manage-questions.php
+    if ( isset( $_GET['id'] ) ) {
+
+    // instruction: call DB class
+    $database = new DB();
+    
+
+    // instruction: get question data
+    $question=$database->fetch(
+        "SELECT * FROM questions WHERE id = :id",
+        [
+          'id' => $_GET['id']
+        ]
+        );
+
+    }
+    // if question is not found, redirect to manage-questions.php
+    if ( !( isset( $question ) && $question ) ) {
+        header( 'Location: /manage-questions.php' );
+        exit;
+    }
+
+    require 'parts/header.php';
+?>
+<div class="container mx-auto my-5" style="max-width: 700px;">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h1 class="h1">Edit Question</h1>
+    </div>
+    <div class="card mb-2 p-4">
+        <?php require dirname(__DIR__) .  '/parts/message_error.php'; ?>
+        <form method="POST" action="questions/edit">
+            <div class="mb-3">
+                <label for="question" class="form-label">Question</label>
+                <textarea class="form-control" id="question" name="question" rows="5"><?= $question['question']; ?></textarea>
+            </div>
+            <div class="d-grid">
+                <input type="hidden" name="id" value="<?= $question['id']; ?>" />
+                <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+        </form>
+    </div>
+    <div class="text-center">
+        <a href="/manage-questions" class="btn btn-link link-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back to Manage Questions</a>
+    </div>
+</div>
+<?php
+    
+    require 'parts/footer.php';
